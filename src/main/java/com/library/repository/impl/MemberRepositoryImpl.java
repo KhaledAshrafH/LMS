@@ -4,9 +4,7 @@ import com.library.model.Book;
 import com.library.model.Member;
 import com.library.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -115,17 +113,8 @@ public class MemberRepositoryImpl implements MemberRepository {
             statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
 
-            while (resultSet.next()) {
-                Book book = new Book();
-                book.setId(resultSet.getLong("id"));
-                book.setTitle(resultSet.getString("title"));
-                book.setIsbn(resultSet.getString("isbn"));
-                book.setAuthor(resultSet.getString("author"));
-                book.setAvailable(resultSet.getBoolean("is_available"));
-                book.setPublicationDate(resultSet.getTimestamp("publication_date").toLocalDateTime());
-                borrowedBooks.add(book);
-            }
-            return borrowedBooks;
+        BookRepositoryImpl.takeBookDetailsFromDatabase(borrowedBooks, resultSet);
+        return borrowedBooks;
         }
     }
 

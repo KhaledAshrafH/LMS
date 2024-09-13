@@ -3,9 +3,7 @@ package com.library.repository.impl;
 import com.library.model.Book;
 import com.library.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,20 +58,24 @@ public class BookRepositoryImpl implements BookRepository {
         try (Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery("SELECT * FROM books");
 
-            while (resultSet.next()) {
-                Book book = new Book();
-                book.setId(resultSet.getLong("id"));
-                book.setTitle(resultSet.getString("title"));
-                book.setIsbn(resultSet.getString("isbn"));
-                book.setAuthor(resultSet.getString("author"));
-                book.setAvailable(resultSet.getBoolean("is_available"));
-                book.setPublicationDate(resultSet.getTimestamp("publication_date").toLocalDateTime());
-                books.add(book);
-            }
+            takeBookDetailsFromDatabase(books, resultSet);
         } catch (SQLException e) {
             throw new RuntimeException("Error fetching all books", e);
         }
         return books;
+    }
+
+    static void takeBookDetailsFromDatabase(List<Book> books, ResultSet resultSet) throws SQLException {
+        while (resultSet.next()) {
+            Book book = new Book();
+            book.setId(resultSet.getLong("id"));
+            book.setTitle(resultSet.getString("title"));
+            book.setIsbn(resultSet.getString("isbn"));
+            book.setAuthor(resultSet.getString("author"));
+            book.setAvailable(resultSet.getBoolean("is_available"));
+            book.setPublicationDate(resultSet.getTimestamp("publication_date").toLocalDateTime());
+            books.add(book);
+        }
     }
 
     @Override
@@ -96,8 +98,7 @@ public class BookRepositoryImpl implements BookRepository {
             statement.setString(1, book.getTitle());
             statement.setString(2, book.getAuthor());
             statement.setString(3, book.getIsbn());
-            statement.setBoolean(4, book.isAvailable());
-            statement.setLong(5, book.getId());
+            statement.setLong(4, book.getId());
             int rowsUpdated = statement.executeUpdate();
 
             if (rowsUpdated == 0) {

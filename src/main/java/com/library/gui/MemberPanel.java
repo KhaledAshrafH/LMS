@@ -67,6 +67,12 @@ public class MemberPanel extends JPanel {
         JButton listMembersButton = createStyledButton("List Members");
         listMembersButton.addActionListener(e -> listMembers());
 
+        JButton deleteMemberButton = createStyledButton("Delete Member");
+        deleteMemberButton.addActionListener(e -> deleteMember());
+
+        JButton updateMemberButton = createStyledButton("Update Member");
+        updateMemberButton.addActionListener(e -> updateMember());
+
         // Initialize member table
         String[] columnNames = {"ID", "Name", "Contact"};
         memberTableModel = new DefaultTableModel(columnNames, 0);
@@ -85,6 +91,12 @@ public class MemberPanel extends JPanel {
         panel.add(listMembersButton, BorderLayout.NORTH);
         panel.add(new JScrollPane(memberTable), BorderLayout.CENTER);
 
+        // Add buttons to the south panel
+        JPanel southPanel = new JPanel();
+        southPanel.add(updateMemberButton);
+        southPanel.add(deleteMemberButton);
+        panel.add(southPanel, BorderLayout.SOUTH);
+
         return panel;
     }
 
@@ -97,7 +109,7 @@ public class MemberPanel extends JPanel {
         panel.add(borrowedBooksLabel, BorderLayout.NORTH);
 
         borrowedBooksTable = new JTable();
-        borrowedBooksTable.setModel(new DefaultTableModel(new String[]{"Title", "Author"}, 0));
+        borrowedBooksTable.setModel(new DefaultTableModel(new String[]{"Book ID", "Title", "Author"}, 0));
         panel.add(new JScrollPane(borrowedBooksTable), BorderLayout.CENTER);
 
         return panel;
@@ -119,8 +131,20 @@ public class MemberPanel extends JPanel {
         button.setOpaque(true);
         button.setPreferredSize(new Dimension(150, 40));
 
+        // Original background color to reset on mouse exit
+        Color originalColor = button.getBackground();
+
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.addActionListener(e -> button.setBackground(new Color(70, 129, 217))); // Change on hover
+
+        // MouseListener for hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(70, 129, 217)); // Change color on hover
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(originalColor); // Restore original color
+            }
+        });
 
         return button;
     }
@@ -144,6 +168,7 @@ public class MemberPanel extends JPanel {
         libraryService.registerMember(member);
         JOptionPane.showMessageDialog(this, "Member registered successfully!");
         clearFields();
+        listMembers(); // Refresh member list after adding
     }
 
     private void clearFields() {
@@ -157,6 +182,32 @@ public class MemberPanel extends JPanel {
         List<Member> members = libraryService.getMembers();
         for (Member member : members) {
             memberTableModel.addRow(new Object[]{member.getId(), member.getName(), member.getContactInfo()});
+        }
+    }
+
+    private void deleteMember() {
+        int selectedRow = memberTable.getSelectedRow();
+        if (selectedRow != -1) {
+            Long memberId = (Long) memberTable.getValueAt(selectedRow, 0);
+            int option = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this member?", "Delete Member", JOptionPane.YES_NO_OPTION);
+            if (option == JOptionPane.YES_OPTION) {
+                libraryService.removeMember(memberId); // Update your service with actual implementation to delete member
+                JOptionPane.showMessageDialog(this, "Member deleted successfully!");
+                listMembers(); // Refresh list after deletion
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a member to delete.");
+        }
+    }
+
+    private void updateMember() {
+        int selectedRow = memberTable.getSelectedRow();
+        if (selectedRow != -1) {
+            Long memberId = (Long) memberTable.getValueAt(selectedRow, 0);
+            Member selectedMember = libraryService.getMemberById(memberId); // Assuming you have this method in your service
+            new MemberEditDialog(selectedMember).setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a member to update.");
         }
     }
 
@@ -175,7 +226,86 @@ public class MemberPanel extends JPanel {
         model.setRowCount(0); // Clear existing data
 
         for (Book book : books) {
-            model.addRow(new Object[]{book.getTitle(), book.getAuthor()});
+            model.addRow(new Object[]{book.getId(), book.getTitle(), book.getAuthor()}); // Added memberId to the row
+        }
+    }
+
+    private class MemberEditDialog extends JDialog {
+        private final JTextField nameField;
+        private final JTextField membershipIdField;
+        private final JTextField contactField;
+
+        public MemberEditDialog(Member member) {
+
+            setTitle("Edit Member");
+            setModal(true);
+            setSize(300, 200);
+            setLocationRelativeTo(MemberPanel.this); // Center the dialog on the parent
+
+            // Set layout manager
+            setLayout(new GridBagLayout());
+            GridBagConstraints constraints = new GridBagConstraints();
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.weightx = 1.0; // Allow components to stretch
+
+            // Name field
+            constraints.gridx = 0;
+            constraints.gridy = 0;
+            constraints.gridwidth = 2; // Use two columns
+            add(new JLabel("Name:"), constraints);
+
+            constraints.gridx = 0;
+            constraints.gridy = 1;
+            constraints.gridwidth = 2; // Use two columns
+            nameField = new JTextField(member.getName());
+            add(nameField, constraints);
+
+            // Membership ID field
+            constraints.gridx = 0;
+            constraints.gridy = 2;
+            constraints.gridwidth = 2; // Use two columns
+            add(new JLabel("Membership ID:"), constraints);
+
+            constraints.gridx = 0;
+            constraints.gridy = 3;
+            constraints.gridwidth = 2; // Use two columns
+            membershipIdField = new JTextField(member.getMembershipId());
+            add(membershipIdField, constraints);
+
+            // Contact field
+            constraints.gridx = 0;
+            constraints.gridy = 4;
+            constraints.gridwidth = 2;
+            add(new JLabel("Contact:"), constraints);
+
+            constraints.gridx = 0;
+            constraints.gridy = 5;
+            constraints.gridwidth = 2;
+            contactField = new JTextField(member.getContactInfo());
+            add(contactField, constraints);
+
+            // Create a styled save button
+            JButton saveButton = createStyledButton("Save");
+            saveButton.addActionListener(e -> {
+                member.setName(nameField.getText());
+                member.setMembershipId(membershipIdField.getText());
+                member.setContactInfo(contactField.getText());
+
+                libraryService.updateMember(member.getId(), member);
+                JOptionPane.showMessageDialog(MemberEditDialog.this, "Member updated successfully!");
+                dispose();
+                // Optionally refresh the list in the main panel when dialog is closed
+                listMembers();
+            });
+
+            // Center the save button
+            constraints.fill = GridBagConstraints.NONE; // Do not stretch
+            constraints.weighty = 1.0; // Allow vertical space to grow
+            constraints.gridx = 0;
+            constraints.gridy = 6;
+            constraints.gridwidth = 2; // Use two columns for the button
+            constraints.anchor = GridBagConstraints.CENTER; // Center the button
+            add(saveButton, constraints);
         }
     }
 }

@@ -2,12 +2,10 @@ package com.library.service;
 
 import com.library.model.Book;
 import com.library.model.Member;
-import jakarta.transaction.Transactional;
 
 import java.sql.SQLException;
 import java.util.List;
 
-@Transactional
 public interface LibraryService {
     void addBook(Book book);
     void removeBook(Long bookId);
@@ -17,7 +15,7 @@ public interface LibraryService {
 
     void registerMember(Member member);
     void removeMember(Long memberId);
-    void updateMember(Long memberId);
+    void updateMember(Long memberId,Member member);
     Member getMemberById(Long memberId);
     List<Member> getMembers();
     List<Book> getBooksByMemberId(Long memberId) throws SQLException;

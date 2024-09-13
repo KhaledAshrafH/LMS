@@ -3,13 +3,12 @@ package com.library.service.impl;
 import com.library.model.Book;
 import com.library.model.Member;
 import com.library.repository.BookRepository;
+import com.library.repository.BorrowingRepository;
 import com.library.repository.MemberRepository;
 import com.library.service.LibraryService;
 import lombok.RequiredArgsConstructor;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -17,6 +16,7 @@ import java.util.List;
 public class LibraryServiceImpl implements LibraryService {
     private final BookRepository bookRepository;
     private final MemberRepository memberRepository;
+    private final BorrowingRepository borrowingRepository;
     private final Connection connection;
 
 
@@ -34,7 +34,17 @@ public class LibraryServiceImpl implements LibraryService {
 
     @Override
     public void updateBook(Long bookId, Book book) {
+        Book bookReturned = bookRepository.findById(bookId);
+        if(!bookReturned.getAuthor().equals(book.getAuthor()))
+            bookReturned.setAuthor(book.getAuthor());
 
+        if(!bookReturned.getTitle().equals(book.getTitle()))
+            bookReturned.setTitle(book.getTitle());
+
+        if(!bookReturned.getIsbn().equals(book.getIsbn()))
+            bookReturned.setIsbn(book.getIsbn());
+
+        bookRepository.update(bookReturned);
     }
 
     @Override
@@ -59,8 +69,18 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public void updateMember(Long memberId) {
+    public void updateMember(Long memberId,Member member) {
+        Member memberReturned = memberRepository.findById(memberId);
+        if(!memberReturned.getName().equals(member.getName()))
+            memberReturned.setName(member.getName());
 
+        if(!memberReturned.getMembershipId().equals(member.getMembershipId()))
+            memberReturned.setMembershipId(member.getMembershipId());
+
+        if(!memberReturned.getContactInfo().equals(member.getContactInfo()))
+            memberReturned.setContactInfo(member.getContactInfo());
+
+        memberRepository.update(memberReturned);
     }
 
     @Override
@@ -80,75 +100,26 @@ public class LibraryServiceImpl implements LibraryService {
 
     @Override
     public void borrowBook(Long memberId, Long bookId) throws SQLException {
-
-        PreparedStatement borrowStatement = null;
-        try {
-            borrowStatement = connection.prepareStatement(
-                    "INSERT INTO member_book (member_id, book_id, borrowed_date) VALUES (?, ?, CURDATE())");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        PreparedStatement updateBookStatement = null;
-
-        try {
-            updateBookStatement = connection.prepareStatement(
-                    "UPDATE books SET is_available = ? WHERE id = ?");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
         connection.setAutoCommit(false);
-        // Find member and book
-        Member member = memberRepository.findById(memberId);
-        Book book = bookRepository.findById(bookId);
-
-        if (book != null && member != null && book.isAvailable()) {
-            // Borrow the book
-            borrowStatement.setLong(1, member.getId());
-            borrowStatement.setLong(2, book.getId());
-            borrowStatement.executeUpdate();
-
-            // Update book availability
-            updateBookStatement.setBoolean(1, false);
-            updateBookStatement.setLong(2, bookId);
-            updateBookStatement.executeUpdate();
-
+        try {
+            borrowingRepository.borrowBook(memberId, bookId);
             connection.commit();
-        } else {
+        } catch (SQLException e) {
             connection.rollback();
-            throw new RuntimeException("Book is not available or Member not found");
+            throw new RuntimeException(e);
         }
-
     }
 
     @Override
     public void returnBook(Long memberId, Long bookId) throws SQLException {
-        PreparedStatement deleteBorrowStatement = connection.prepareStatement(
-                "DELETE FROM member_book WHERE member_id = ? AND book_id = ?");
-        PreparedStatement updateBookStatement = connection.prepareStatement(
-                "UPDATE books SET is_available = ? WHERE id = ?");
-
         connection.setAutoCommit(false);
-
-        // Find member and book
-        Member member = memberRepository.findById(memberId);
-        Book book = bookRepository.findById(bookId);
-
-        if (member != null && book != null) {
-            // Return the book
-            deleteBorrowStatement.setLong(1, memberId);
-            deleteBorrowStatement.setLong(2, bookId);
-            deleteBorrowStatement.executeUpdate();
-
-            // Update book availability
-            updateBookStatement.setBoolean(1, true);
-            updateBookStatement.setLong(2, bookId);
-            updateBookStatement.executeUpdate();
-
+        try {
+            borrowingRepository.returnBook(memberId, bookId);
             connection.commit();
-        } else {
+        }
+        catch (SQLException e) {
             connection.rollback();
-            throw new RuntimeException("This book was not borrowed by the member");
+            throw new RuntimeException(e);
         }
     }
 }

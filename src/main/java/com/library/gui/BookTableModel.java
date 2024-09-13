@@ -1,6 +1,5 @@
 package com.library.gui;
 
-
 import com.library.model.Book;
 
 import javax.swing.table.AbstractTableModel;
@@ -24,18 +23,13 @@ public class BookTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         Book book = books.get(rowIndex);
-        switch (columnIndex) {
-            case 0:
-                return book.getTitle();
-            case 1:
-                return book.getIsbn();
-            case 2:
-                return book.getAuthor();
-            case 3:
-                return book.isAvailable() ? "Yes" : "No";
-            default:
-                return null;
-        }
+        return switch (columnIndex) {
+            case 0 -> book.getTitle();
+            case 1 -> book.getIsbn();
+            case 2 -> book.getAuthor();
+            case 3 -> book.isAvailable() ? "Yes" : "No";
+            default -> null;
+        };
     }
 
     @Override
@@ -47,5 +41,12 @@ public class BookTableModel extends AbstractTableModel {
         this.books = books;
         fireTableDataChanged();
     }
-}
 
+    // New method to get a book at a specific row
+    public Book getBookAt(int rowIndex) {
+        if (rowIndex >= 0 && rowIndex < books.size()) {
+            return books.get(rowIndex);
+        }
+        throw new IndexOutOfBoundsException("Row index out of bounds: " + rowIndex);
+    }
+}

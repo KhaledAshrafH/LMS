@@ -3,8 +3,10 @@ package com.library;
 import com.library.gui.LibraryManagementFrame;
 
 import com.library.repository.BookRepository;
+import com.library.repository.BorrowingRepository;
 import com.library.repository.MemberRepository;
 import com.library.repository.impl.BookRepositoryImpl;
+import com.library.repository.impl.BorrowingRepositoryImpl;
 import com.library.repository.impl.MemberRepositoryImpl;
 import com.library.service.LibraryService;
 import com.library.service.impl.LibraryServiceImpl;
@@ -26,7 +28,8 @@ public class Main {
         Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
         BookRepository bookRepository = new BookRepositoryImpl(connection);
         MemberRepository memberRepository = new MemberRepositoryImpl(connection);
-        LibraryService libraryService = new LibraryServiceImpl(bookRepository,memberRepository,connection);
+        BorrowingRepository borrowingRepository = new BorrowingRepositoryImpl(connection, bookRepository, memberRepository);
+        LibraryService libraryService = new LibraryServiceImpl(bookRepository,memberRepository,borrowingRepository,connection);
         SwingUtilities.invokeLater(() -> {
             LibraryManagementFrame frame = new LibraryManagementFrame(libraryService);
             frame.setVisible(true);
