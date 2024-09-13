@@ -5,7 +5,7 @@
 - [Features](#key-functionalities)
   - [Book Management](#book-management)
   - [Member Management](#member-management)
-  - [Borrowing and Returning Books](#borrowing-and-returning-books)
+  - [Borrowing and Returning Books](#borrowing-and-returning)
 - [UML Diagram](#uml-diagram)
 - [Technologies Used](#technologies-used)
 - [Setup and Installation](#setup-and-installation)
@@ -49,8 +49,8 @@ This project meticulously implements a robust Library Management System (LMS) in
 <p align="center" margin="auto">
     <kbd>
 <img align="center" 
-            src="https://github.com/KhaledAshrafH/LMS/images/main/UML.jpg"
-            alt="KhaledAshrafH"  height="500" style="border-radius: 20px;"/>
+            src="https://github.com/KhaledAshrafH/LMS/blob/main/images/UML.jpg"
+            alt="KhaledAshrafH"  height="300" style="border-radius: 20px;"/>
     </kbd>
   </p>
  <h1 align="center"></h1>
@@ -106,11 +106,30 @@ After launching, the application will present a GUI with tabs for managing books
 
 ## Screenshots
 ### Library Management System GUI
-This is a screenshot of the Library Management System interface.
+ <br>
+<p align="center" margin="auto">
+    <kbd>
+<img align="center" 
+            src="https://github.com/KhaledAshrafH/LMS/blob/main/images/GUI1.jpg"
+            alt="KhaledAshrafH"  height="500" style="border-radius: 20px;"/>
+    </kbd>
+  </p>
+ <h1 align="center"></h1>
+
+  <br>
+<p align="center" margin="auto">
+    <kbd>
+<img align="center" 
+            src="https://github.com/KhaledAshrafH/LMS/blob/main/images/GUI2.jpg"
+            alt="KhaledAshrafH"  height="500" style="border-radius: 20px;"/>
+    </kbd>
+  </p>
+ <h1 align="center"></h1>
 
 ## Contributing
 Contributions are welcome! If you'd like to contribute, please fork the repository and create a pull request with your changes.
 
 ## License
-This project is licensed under the MIT License. For more details, please refer to the LICENSE file.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 
