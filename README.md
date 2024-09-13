@@ -17,10 +17,6 @@
 ## Introduction
 This project meticulously implements a robust Library Management System (LMS) in Java, leveraging the power of Maven for streamlined build automation and Swing for an intuitive graphical user interface (GUI). Its primary objective is to significantly enhance library operations by automating essential book and member management tasks, fostering efficiency and accuracy.
 
-
-I'd be glad to provide the refactored README code, incorporating the best aspects of the previous responses and addressing identified shortcomings:
-
-Markdown
 # Library Management System (LMS)
 
 ## Introduction
