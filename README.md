@@ -20,18 +20,18 @@ This project meticulously implements a robust Library Management System (LMS) in
 ## Key Functionalities:
 
 ### Book Management:
-  **Meticulous Book Addition:** Effortlessly create new book entries, meticulously capturing crucial details such as title, author, ISBN (International Standard Book Number), publication date, and current availability status.
-  **Streamlined Book Updates:** Modify existing book information and availability status with ease, ensuring the library catalog remains up-to-date.
-  **Efficient Book Removal:** When books are no longer part of the library's collection, seamlessly remove them from the catalog, maintaining a streamlined database.
+  - **Meticulous Book Addition:** Effortlessly create new book entries, meticulously capturing crucial details such as title, author, ISBN (International Standard Book Number), publication date, and current availability status.
+  - **Streamlined Book Updates:** Modify existing book information and availability status with ease, ensuring the library catalog remains up-to-date.
+  - **Efficient Book Removal:** When books are no longer part of the library's collection, seamlessly remove them from the catalog, maintaining a streamlined database.
 
 ### Member Management:
-  **Effortless Member Registration:** Welcome new members by adding their personal details, including name and unique membership ID, to the system.
-  **Member Profile Updates:** Maintain accurate member information by facilitating edits to profiles as needed.
-  **Clear Borrowing History Tracking:** Employ the system to meticulously track borrowed books and their corresponding due dates for each member, enabling efficient overdue management.
+  - **Effortless Member Registration:** Welcome new members by adding their personal details, including name and unique membership ID, to the system.
+  - **Member Profile Updates:** Maintain accurate member information by facilitating edits to profiles as needed.
+  - **Clear Borrowing History Tracking:** Employ the system to meticulously track borrowed books and their corresponding due dates for each member, enabling efficient overdue management.
 
 ### Borrowing and Returning:
-  **Streamlined Book Borrowing:** Empower members to effortlessly check out desired books, recording borrowing dates for accurate tracking.
-  **Efficient Book Returns:** Process book returns and update availability status in the system.
+  - **Streamlined Book Borrowing:** Empower members to effortlessly check out desired books, recording borrowing dates for accurate tracking.
+  - **Efficient Book Returns:** Process book returns and update availability status in the system.
 
 ## UML Diagram
 
