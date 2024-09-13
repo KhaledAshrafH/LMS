@@ -39,7 +39,7 @@ This project meticulously implements a robust Library Management System (LMS) in
 <p align="center" margin="auto">
     <kbd>
 <img align="center" 
-            src="https://github.com/KhaledAshrafH/LMS/blob/main/images/UML.jpg"
+            src="https://github.com/KhaledAshrafH/LMS/blob/main/images/UML_Diagram.jpg"
             alt="KhaledAshrafH"  height="300" style="border-radius: 20px;"/>
     </kbd>
   </p>
