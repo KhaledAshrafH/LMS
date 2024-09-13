@@ -2,7 +2,6 @@ package com.library.gui;
 
 import com.library.model.Book;
 import com.library.service.LibraryService;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +11,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
-@Slf4j
 public class BookPanel extends JPanel {
 
     private final LibraryService libraryService;
@@ -27,21 +25,21 @@ public class BookPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(new Color(240, 240, 240));
 
-        // Create top panel for adding books
+        // create top panel for adding books
         JPanel addBookPanel = createAddBookPanel();
         add(addBookPanel, BorderLayout.NORTH);
 
-        // Create center panel for listing books
+        // create center panel for listing books
         JPanel listBooksPanel = createListBooksPanel();
         add(listBooksPanel, BorderLayout.CENTER);
     }
 
+    // Create the panel for adding a book
     private JPanel createAddBookPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panel.setBackground(new Color(255, 255, 255));
-        panel.setOpaque(true);
 
         titleField = createTextField("Title");
         authorField = createTextField("Author");
@@ -58,6 +56,7 @@ public class BookPanel extends JPanel {
         return panel;
     }
 
+    // Create the panel for listing books
     private JPanel createListBooksPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -83,10 +82,10 @@ public class BookPanel extends JPanel {
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
         panel.add(buttonPanel, BorderLayout.SOUTH);
-
         return panel;
     }
 
+    // To create a text field
     private JTextField createTextField(String label) {
         JTextField textField = new JTextField(15);
         textField.setBorder(BorderFactory.createTitledBorder(label));
@@ -94,6 +93,7 @@ public class BookPanel extends JPanel {
         return textField;
     }
 
+    // To create a button with specific style
     private JButton createStyledButton(String label) {
         JButton button = new JButton(label);
         button.setBackground(new Color(100, 149, 237));
@@ -118,15 +118,16 @@ public class BookPanel extends JPanel {
                 button.setBackground(new Color(100, 149, 237));
             }
         });
-
         return button;
     }
 
+    // Load books from the library service and update the table
     private void loadBooks() {
         List<Book> books = libraryService.getBooks();
         bookTableModel.setBooks(books);
     }
 
+    // ActionListener for adding book
     private class AddBookActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -135,11 +136,7 @@ public class BookPanel extends JPanel {
             String isbn = isbnField.getText();
 
             if (!title.isEmpty() && !author.isEmpty() && !isbn.isEmpty()) {
-                Book book = new Book();
-                book.setAuthor(author);
-                book.setTitle(title);
-                book.setIsbn(isbn);
-                book.setAvailable(true);
+                Book book = new Book(title, author, isbn, true);
                 libraryService.addBook(book);
 
                 JOptionPane.showMessageDialog(BookPanel.this, "Book added successfully!");
@@ -147,12 +144,14 @@ public class BookPanel extends JPanel {
                 authorField.setText("");
                 isbnField.setText("");
                 loadBooks();
-            } else {
-                JOptionPane.showMessageDialog(BookPanel.this, "All fields are required.");
             }
+            else
+                JOptionPane.showMessageDialog(BookPanel.this, "All fields are required.");
+
         }
     }
 
+    // ActionListener for listing the books
     private class ListBooksActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -160,6 +159,7 @@ public class BookPanel extends JPanel {
         }
     }
 
+    // ActionListener for updating book
     private class UpdateBookActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -167,105 +167,100 @@ public class BookPanel extends JPanel {
             if (selectedRow != -1) {
                 Book selectedBook = bookTableModel.getBookAt(selectedRow);
                 new BookEditDialog(selectedBook).setVisible(true);
-            } else {
-                JOptionPane.showMessageDialog(BookPanel.this, "Please select a book to update.");
             }
+            else
+                JOptionPane.showMessageDialog(BookPanel.this, "Please select book to update it.");
+
         }
     }
 
+    // ActionListener for deleting book
     private class DeleteBookActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             int selectedRow = bookTable.getSelectedRow();
             if (selectedRow != -1) {
                 Book selectedBook = bookTableModel.getBookAt(selectedRow);
-                int option = JOptionPane.showConfirmDialog(BookPanel.this, "Are you sure you want to delete this book?", "Delete Book", JOptionPane.YES_NO_OPTION);
+                int option = JOptionPane.showConfirmDialog(BookPanel.this, "Are you want to delete this book?", "Delete Book", JOptionPane.YES_NO_OPTION);
                 if (option == JOptionPane.YES_OPTION) {
                     libraryService.removeBook(selectedBook.getId());
                     JOptionPane.showMessageDialog(BookPanel.this, "Book deleted successfully!");
                     loadBooks();
                 }
-            } else {
-                JOptionPane.showMessageDialog(BookPanel.this, "Please select a book to delete.");
             }
+            else
+                JOptionPane.showMessageDialog(BookPanel.this, "Please select a book to delete.");
+
         }
     }
 
+    // Dialog for editing specific book
     private class BookEditDialog extends JDialog {
         private final JTextField titleField;
         private final JTextField authorField;
         private final JTextField isbnField;
 
         public BookEditDialog(Book book) {
-            setTitle("Edit Book");
+            setTitle("Edit Book ("+book.getTitle()+")");
             setModal(true);
             setSize(300, 200);
-            setLocationRelativeTo(BookPanel.this); // Center the dialog on the parent
+            setLocationRelativeTo(BookPanel.this);
 
-            // Set layout manager
             setLayout(new GridBagLayout());
             GridBagConstraints constraints = new GridBagConstraints();
             constraints.fill = GridBagConstraints.HORIZONTAL;
-            constraints.weightx = 1.0; // Allow components to stretch
+            constraints.weightx = 1.0;
 
-            // Title field
             constraints.gridx = 0;
             constraints.gridy = 0;
-            constraints.gridwidth = 2; // Use two columns
+            constraints.gridwidth = 2;
             add(new JLabel("Title:"), constraints);
 
             constraints.gridx = 0;
             constraints.gridy = 1;
-            constraints.gridwidth = 2; // Use two columns
+            constraints.gridwidth = 2;
             titleField = new JTextField(book.getTitle());
             add(titleField, constraints);
 
-            // Author field
             constraints.gridx = 0;
             constraints.gridy = 2;
-            constraints.gridwidth = 2; // Use two columns
+            constraints.gridwidth = 2;
             add(new JLabel("Author:"), constraints);
 
             constraints.gridx = 0;
             constraints.gridy = 3;
-            constraints.gridwidth = 2; // Use two columns
+            constraints.gridwidth = 2;
             authorField = new JTextField(book.getAuthor());
             add(authorField, constraints);
 
-            // ISBN field
             constraints.gridx = 0;
             constraints.gridy = 4;
-            constraints.gridwidth = 2; // Use two columns
+            constraints.gridwidth = 2;
             add(new JLabel("ISBN:"), constraints);
 
             constraints.gridx = 0;
             constraints.gridy = 5;
-            constraints.gridwidth = 2; // Use two columns
+            constraints.gridwidth = 2;
             isbnField = new JTextField(book.getIsbn());
             add(isbnField, constraints);
 
-            // Create a styled save button
             JButton saveButton = createStyledButton("Save");
             saveButton.addActionListener(e -> {
                 book.setTitle(titleField.getText());
                 book.setAuthor(authorField.getText());
                 book.setIsbn(isbnField.getText());
-                log.info(book.toString());
-                log.info("--------------------");
-                log.info(book.getId().toString());
                 libraryService.updateBook(book.getId(), book);
                 loadBooks();
                 JOptionPane.showMessageDialog(BookEditDialog.this, "Book updated successfully!");
                 dispose();
             });
 
-            // Center the save button
-            constraints.fill = GridBagConstraints.NONE; // Do not stretch
-            constraints.weighty = 1.0; // Allow vertical space to grow
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.weighty = 1.0;
             constraints.gridx = 0;
             constraints.gridy = 6;
-            constraints.gridwidth = 2; // Use two columns for the button
-            constraints.anchor = GridBagConstraints.CENTER; // Center the button
+            constraints.gridwidth = 2;
+            constraints.anchor = GridBagConstraints.CENTER;
             add(saveButton, constraints);
         }
     }

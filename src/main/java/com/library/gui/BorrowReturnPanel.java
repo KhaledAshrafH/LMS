@@ -8,6 +8,8 @@ import com.library.service.LibraryService;
 public class BorrowReturnPanel extends JPanel {
 
     private final LibraryService libraryService;
+
+    // Input fields for borrowing and returning books
     private JTextField memberIdField;
     private JTextField bookIdField;
     private JTextField returnMemberIdField;
@@ -17,6 +19,10 @@ public class BorrowReturnPanel extends JPanel {
 
     public BorrowReturnPanel(LibraryService libraryService) {
         this.libraryService = libraryService;
+        initializeUI();
+    }
+
+    private void initializeUI() {
         setLayout(new BorderLayout());
         setBackground(new Color(240, 240, 240));
 
@@ -29,9 +35,7 @@ public class BorrowReturnPanel extends JPanel {
 
         memberIdField = createTextField("Member ID");
         bookIdField = createTextField("Book ID");
-
-        JButton borrowButton = createStyledButton("Borrow Book");
-        borrowButton.addActionListener(e -> handleBorrow());
+        JButton borrowButton = createActionButton("Borrow Book", e -> handleBorrow());
 
         addComponentsToPanel(panel, memberIdField, bookIdField, borrowButton);
         return panel;
@@ -42,9 +46,7 @@ public class BorrowReturnPanel extends JPanel {
 
         returnMemberIdField = createTextField("Member ID");
         returnBookIdField = createTextField("Book ID");
-
-        JButton returnButton = createStyledButton("Return Book");
-        returnButton.addActionListener(e -> handleReturn());
+        JButton returnButton = createActionButton("Return Book", e -> handleReturn());
 
         addComponentsToPanel(panel, returnMemberIdField, returnBookIdField, returnButton);
         return panel;
@@ -52,7 +54,7 @@ public class BorrowReturnPanel extends JPanel {
 
     private JPanel createInputPanel(String title) {
         JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Changed to BoxLayout for more control over component sizes
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createTitledBorder(title));
         panel.setBackground(Color.WHITE);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -62,13 +64,19 @@ public class BorrowReturnPanel extends JPanel {
     private JTextField createTextField(String title) {
         JTextField textField = new JTextField(10);
         textField.setBorder(BorderFactory.createTitledBorder(title));
-        textField.setMaximumSize(new Dimension(Short.MAX_VALUE, TEXT_FIELD_HEIGHT)); // Use Short.MAX_VALUE for width
-        textField.setPreferredSize(new Dimension(120, TEXT_FIELD_HEIGHT)); // Fixed height
+        textField.setMaximumSize(new Dimension(Short.MAX_VALUE, TEXT_FIELD_HEIGHT));
+        textField.setPreferredSize(new Dimension(120, TEXT_FIELD_HEIGHT));
         return textField;
     }
 
-    private JButton createStyledButton(String label) {
+    private JButton createActionButton(String label, java.awt.event.ActionListener actionListener) {
         JButton button = new JButton(label);
+        styleButton(button);
+        button.addActionListener(actionListener);
+        return button;
+    }
+
+    private void styleButton(JButton button) {
         button.setBackground(new Color(100, 149, 237));
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
@@ -77,22 +85,22 @@ public class BorrowReturnPanel extends JPanel {
         button.setPreferredSize(new Dimension(120, 40));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
+        // change button color on mouse hover
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
                 button.setBackground(new Color(70, 129, 217));
             }
+
             @Override
             public void mouseExited(java.awt.event.MouseEvent e) {
                 button.setBackground(new Color(100, 149, 237));
             }
         });
-
-        return button;
     }
 
     private void addComponentsToPanel(JPanel panel, JComponent... components) {
-        // Center button using FlowLayout
+        // create panel to center align buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         for (JComponent component : components) {
             if (component instanceof JButton) {
@@ -105,32 +113,37 @@ public class BorrowReturnPanel extends JPanel {
     }
 
     private void handleBorrow() {
-        try {
-            long memberId = Long.parseLong(memberIdField.getText());
-            long bookId = Long.parseLong(bookIdField.getText());
-            libraryService.borrowBook(memberId, bookId);
-            showMessage("Book borrowed successfully.");
-        } catch (NumberFormatException ex) {
-            showMessage("Invalid member ID or book ID.");
-        } catch (SQLException ex) {
-            showMessage("Error borrowing book: " + ex.getMessage());
-        }
+        processBookAction(memberIdField, bookIdField, libraryService::borrowBook, "Book borrowed successfully.", "Error borrowing book: ");
     }
 
     private void handleReturn() {
+        processBookAction(returnMemberIdField, returnBookIdField, libraryService::returnBook, "Book returned successfully.", "Error returning book: ");
+    }
+
+    /**
+     * General method to handle borrowing or returning books to reduce code duplication.
+     */
+    private void processBookAction(JTextField memberIdField, JTextField bookIdField,
+                                   BookAction action, String successMessage, String errorMessage) {
         try {
-            long memberId = Long.parseLong(returnMemberIdField.getText());
-            long bookId = Long.parseLong(returnBookIdField.getText());
-            libraryService.returnBook(memberId, bookId);
-            showMessage("Book returned successfully.");
+            long memberId = Long.parseLong(memberIdField.getText());
+            long bookId = Long.parseLong(bookIdField.getText());
+            action.perform(memberId, bookId);
+            showMessage(successMessage);
         } catch (NumberFormatException ex) {
             showMessage("Invalid member ID or book ID.");
         } catch (SQLException ex) {
-            showMessage("Error returning book: " + ex.getMessage());
+            showMessage(errorMessage + ex.getMessage());
         }
     }
 
     private void showMessage(String message) {
         JOptionPane.showMessageDialog(this, message);
+    }
+
+    // Functional Interface for book actions (borrowing and returning)
+    @FunctionalInterface
+    private interface BookAction {
+        void perform(long memberId, long bookId) throws SQLException;
     }
 }
